@@ -18,7 +18,10 @@ Background_img = pygame.transform.scale(Background_img, size)
 pipe_buttom_img = pygame.image.load("pipe.png")
 pipe_top_img = pygame.transform.rotate(pipe_buttom_img, 180)
 
-        
+#load bird 
+flappy_bird_img = pygame.image.load("bird1.png")
+
+
 class PipeObject():
 
     GAP = 250 # the gap between each pipe 
@@ -49,18 +52,39 @@ class PipeObject():
         self.pipe_top_img = pygame.transform.rotate(self.pipe_top_img, 180)
 
     def move(self): 
-        print(type(PipeObject.speed), type(self.x), PipeObject.speed, self.x)
-        print("xx")
+        #print(type(PipeObject.speed), type(self.x), PipeObject.speed, self.x)
+        #print("xx")
         self.x -= PipeObject.speed
         
-
     def draw_pipe(self): 
         screen.blit(self.pipe_top_img, (self.x, 0))
         screen.blit(self.pipe_buttom_img, (self.x, self.pipe_buttom_hgt+self.GAP))
         #pygame.display.update()
         #screen.blit(self.pipe_buttom_img, (self.pipe_buttom_img.get_wight()-self.speed, self.pipe_buttom_img.get_height()))
 
-        
+
+class BirdObject(): 
+    VEL = 5
+
+    def __init__(self, img="bird1.png"):
+        self.flappy_bird_img = pygame.image.load(img)
+        self.bird_y = 300 # the bird start position on the y-axse 
+        self.bird_pos = pygame.Rect(100, 300, flappy_bird_img.get_width(), self.bird_y)
+    
+    def move_bird(self): 
+        spacebar_pressed = pygame.key.get_pressed() 
+        if spacebar_pressed[pygame.K_SPACE]: # up
+            self.bird_y -= self.VEL # velucity is 5 
+            
+            print("up", self.bird_y)
+        elif self.bird_y <= 450: # buttom of the windue 
+            self.bird_y +=  self.VEL
+            print("down", self.bird_y)
+
+    def draw_bird(self): 
+
+        screen.blit(flappy_bird_img, (self.bird_pos.x, self.bird_y))
+
 
 
 def draw_windue(): 
@@ -73,19 +97,22 @@ def draw_windue():
 
 #ballrect = ball.get_rect()
 
+
 def main(): 
-    draw_windue()
+    #draw_windue()
+
+   
 
     clock = pygame.time.Clock() 
-    pipes = [PipeObject(1000)] # 1 object called pipe is being created. 1000 represent the size of the windue inwitch the pipe has to travel from
-    
+    pipes = [PipeObject(1000)] # 1 object called pipe is being created. 1000 represent the start position on the x axse for the pipe. right -> left 
+    bird = BirdObject()
 
     while True:
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
-        pygame.time.wait(199)
+        pygame.time.wait(100)
 
         add_pipe = False 
 
@@ -102,14 +129,18 @@ def main():
         
 
         screen.blit(Background_img, (0,0))
+
+        
+        bird.draw_bird()
+        bird.move_bird()
+
         for pipe in pipes: 
-            # pipe.x goes from 1000(windueSize) to 0. if 0 than remove pipe from list of pipes. 
-            # means pipe has reach the end of the windue
-            if pipe.x == 0: 
-                pipes.remove(pipe)
-            
             pipe.draw_pipe()
             pygame.display.update()
+            # pipe.x goes from 1000(windueSize) to 0. if 0 than remove pipe from list of pipes. 
+            # means pipe has reached the end of the windue
+            if pipe.x == -10: 
+                pipes.remove(pipe)
         
        
         clock.tick(FPS)
